@@ -14,6 +14,9 @@ module.exports = Web3ProviderEngine
 
 inherits(Web3ProviderEngine, EventEmitter)
 
+// fix for web3.js
+Object.defineProperty(Web3ProviderEngine, 'name', { value: 'HttpProvider' })
+
 function Web3ProviderEngine(opts) {
   const self = this
   EventEmitter.call(self)
