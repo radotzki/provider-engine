@@ -1,8 +1,7 @@
 {
-  "name": "web3-provider-engine",
-  "version": "14.1.0",
+  "name": "@portis/web3-provider-engine",
+  "version": "1.0.1",
   "description": "",
-  "repository": "https://github.com/MetaMask/provider-engine",
   "main": "index.js",
   "scripts": {
     "test": "node test/index.js",
