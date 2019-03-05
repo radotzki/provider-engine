@@ -62,16 +62,19 @@ function HookedWalletSubprovider(opts){
   if (opts.processMessage) self.processMessage = opts.processMessage
   if (opts.processPersonalMessage) self.processPersonalMessage = opts.processPersonalMessage
   if (opts.processTypedMessage) self.processTypedMessage = opts.processTypedMessage
+  if (opts.processTypedMessageV3) self.processTypedMessageV3 = opts.processTypedMessageV3
   // approval hooks
   self.approveTransaction = opts.approveTransaction || self.autoApprove
   self.approveMessage = opts.approveMessage || self.autoApprove
   self.approvePersonalMessage = opts.approvePersonalMessage || self.autoApprove
   self.approveTypedMessage = opts.approveTypedMessage || self.autoApprove
+  self.approveTypedMessageV3 = opts.approveTypedMessageV3 || self.autoApprove
   // actually perform the signature
   if (opts.signTransaction) self.signTransaction = opts.signTransaction  || mustProvideInConstructor('signTransaction')
   if (opts.signMessage) self.signMessage = opts.signMessage  || mustProvideInConstructor('signMessage')
   if (opts.signPersonalMessage) self.signPersonalMessage = opts.signPersonalMessage  || mustProvideInConstructor('signPersonalMessage')
   if (opts.signTypedMessage) self.signTypedMessage = opts.signTypedMessage  || mustProvideInConstructor('signTypedMessage')
+  if (opts.signTypedMessageV3) self.signTypedMessageV3 = opts.signTypedMessageV3  || mustProvideInConstructor('signTypedMessageV3')
   if (opts.recoverPersonalSignature) self.recoverPersonalSignature = opts.recoverPersonalSignature
   // publish to network
   if (opts.publishTransaction) self.publishTransaction = opts.publishTransaction
@@ -209,6 +212,21 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       ], end)
       return
 
+    case 'eth_signTypedData_v3':
+      // process normally
+      message = payload.params[0]
+      address = payload.params[1]
+      extraParams = payload.params[2] || {}
+      msgParams = extend(extraParams, {
+        from: address,
+        data: message,
+      })
+      waterfall([
+        (cb) => self.validateTypedMessageV3(msgParams, cb),
+        (cb) => self.processTypedMessageV3(msgParams, cb),
+      ], end)
+      return
+
     case 'parity_postTransaction':
       txParams = payload.params[0]
       self.parityPostTransaction(txParams, end)
@@ -296,6 +314,15 @@ HookedWalletSubprovider.prototype.processTypedMessage = function(msgParams, cb) 
     (cb) => self.approveTypedMessage(msgParams, cb),
     (didApprove, cb) => self.checkApproval('message', didApprove, cb),
     (cb) => self.signTypedMessage(msgParams, cb),
+  ], cb)
+}
+
+HookedWalletSubprovider.prototype.processTypedMessageV3 = function(msgParams, cb) {
+  const self = this
+  waterfall([
+    (cb) => self.approveTypedMessageV3(msgParams, cb),
+    (didApprove, cb) => self.checkApproval('message', didApprove, cb),
+    (cb) => self.signTypedMessageV3(msgParams, cb),
   ], cb)
 }
 
@@ -425,6 +452,16 @@ HookedWalletSubprovider.prototype.validatePersonalMessage = function(msgParams, 
 }
 
 HookedWalletSubprovider.prototype.validateTypedMessage = function(msgParams, cb){
+  if (msgParams.from === undefined) return cb(new Error(`Undefined address - from address required to sign typed data.`))
+  if (msgParams.data === undefined) return cb(new Error(`Undefined data - message required to sign typed data.`))
+  this.validateSender(msgParams.from, function(err, senderIsValid){
+    if (err) return cb(err)
+    if (!senderIsValid) return cb(new Error(`Unknown address - unable to sign message for this address: "${msgParams.from}"`))
+    cb()
+  })
+}
+
+HookedWalletSubprovider.prototype.validateTypedMessageV3 = function(msgParams, cb){
   if (msgParams.from === undefined) return cb(new Error(`Undefined address - from address required to sign typed data.`))
   if (msgParams.data === undefined) return cb(new Error(`Undefined data - message required to sign typed data.`))
   this.validateSender(msgParams.from, function(err, senderIsValid){
