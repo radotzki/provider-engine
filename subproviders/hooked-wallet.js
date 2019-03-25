@@ -130,8 +130,14 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
 
     case 'eth_sign':
       // process normally
-      address = payload.params[0]
-      message = payload.params[1]
+      if (resemblesData(payload.params[1]) && resemblesAddress(payload.params[0])) {
+        address = payload.params[0]
+        message = payload.params[1]
+      } else {
+        message = payload.params[0]
+        address = payload.params[1]
+      }
+
       // non-standard "extraParams" to be appended to our "msgParams" obj
       // good place for metadata
       extraParams = payload.params[2] || {}
