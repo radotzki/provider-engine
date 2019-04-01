@@ -102,7 +102,7 @@ class WebsocketSubprovider
 
     // check if server-sent notification
     if (payload.id === undefined) {
-      return this.emit('data', null, payload)
+      return this.engine.emit('data', null, payload)
     }
 
     // ignore if missing
@@ -142,7 +142,7 @@ class WebsocketSubprovider
 
   _openSocket() {
     this._log('Opening socket...')
-    this._socket = new WebSocket(this._url, null, {origin: this._origin})
+    this._socket = new WebSocket(this._url, [], this._origin ? {headers:{origin: this._origin}} : {})
     this._socket.addEventListener('close', this._handleSocketClose)
     this._socket.addEventListener('message', this._handleSocketMessage)
     this._socket.addEventListener('open', this._handleSocketOpen)
