@@ -207,7 +207,7 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
 
     case 'eth_signTypedData':
       // process normally
-      if (resemblesData(payload.params[1]) && resemblesAddress(payload.params[0])) {
+      if (!resemblesAddress(payload.params[1]) && resemblesAddress(payload.params[0])) {
         address = payload.params[0]
         message = payload.params[1]
       } else {
@@ -228,7 +228,7 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
 
     case 'eth_signTypedData_v3':
       // process normally
-      if (resemblesData(payload.params[1]) && resemblesAddress(payload.params[0])) {
+      if (!resemblesAddress(payload.params[1]) && resemblesAddress(payload.params[0])) {
         address = payload.params[0]
         message = payload.params[1]
       } else {
