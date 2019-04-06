@@ -192,7 +192,7 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
       })()
 
     case 'personal_ecRecover':
-      return (function(){    
+      return (function(){
         message = payload.params[0]
         let signature = payload.params[1]
         // non-standard "extraParams" to be appended to our "msgParams" obj
@@ -207,8 +207,14 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
 
     case 'eth_signTypedData':
       // process normally
-      message = payload.params[0]
-      address = payload.params[1]
+      if (resemblesData(payload.params[1]) && resemblesAddress(payload.params[0])) {
+        address = payload.params[0]
+        message = payload.params[1]
+      } else {
+        message = payload.params[0]
+        address = payload.params[1]
+      }
+
       extraParams = payload.params[2] || {}
       msgParams = extend(extraParams, {
         from: address,
@@ -222,8 +228,14 @@ HookedWalletSubprovider.prototype.handleRequest = function(payload, next, end){
 
     case 'eth_signTypedData_v3':
       // process normally
-      message = payload.params[0]
-      address = payload.params[1]
+      if (resemblesData(payload.params[1]) && resemblesAddress(payload.params[0])) {
+        address = payload.params[0]
+        message = payload.params[1]
+      } else {
+        message = payload.params[0]
+        address = payload.params[1]
+      }
+
       extraParams = payload.params[2] || {}
       msgParams = extend(extraParams, {
         from: address,
