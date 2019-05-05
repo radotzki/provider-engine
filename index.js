@@ -35,7 +35,7 @@ function Web3ProviderEngine(opts) {
 
   // set initialization blocker
   self._ready = new Stoplight()
-  
+
   // local state
   self.currentBlock = null
   self._providers = []
@@ -55,6 +55,9 @@ Web3ProviderEngine.prototype.start = function(cb = noop){
     self._getBlockByNumber(blockNumber, (err, block) => {
       if (err) {
         this.emit('error', err)
+        return
+      }
+      if (!block) {
         return
       }
       const bufferBlock = toBufferBlock(block)
@@ -146,7 +149,7 @@ Web3ProviderEngine.prototype._handleAsync = function(payload, finished) {
   var stack = []
 
   next()
-  
+
   function next(after) {
     currentProvider += 1
     stack.unshift(after)
