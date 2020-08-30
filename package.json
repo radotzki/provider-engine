@@ -1,6 +1,6 @@
 {
   "name": "@portis/web3-provider-engine",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,7 @@
     "eth-json-rpc-filters": "^4.0.2",
     "eth-json-rpc-infura": "^3.1.0",
     "eth-json-rpc-middleware": "^5.0.2",
-    "eth-sig-util": "^1.4.2",
+    "eth-sig-util": "2.5.3",
     "ethereumjs-block": "^1.2.2",
     "ethereumjs-tx": "^1.2.0",
     "ethereumjs-util": "^5.1.5",
